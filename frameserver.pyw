@@ -2,19 +2,21 @@ from os import listdir, path, remove, system
 from time import sleep
 import re
 
-d = r'C:\ENCODE'
-avs_name = 'frameserver.avs'
+default_wdir = r'C:\ENCODE'
+default_audio = '-c:a aac -b:a 576k -cutoff 18000'
+default_verbosity = '-stats -hide_banner -loglevel 16' # только прогресс кодирования
+avs_name = 'frameserver_tmp.avs'
 
 # TODO: более быстрые настройки для ffmpeg
 
 def get_file(folder):
     for i in listdir(folder):
         if '.avi' in path.splitext(i):
-            return path.join(d, i)
+            return path.join(default_wdir, i)
 
 
 def write_avs(name):
-    with open(path.join(d, avs_name), 'w') as avs:  # , 'utf-8'.... но AviSynth всё равно не умеет :с
+    with open(path.join(default_wdir, avs_name), 'w') as avs:  # , 'utf-8'.... но AviSynth всё равно не умеет :с
         avs.write('AviSource("{}")'.format(name))  # \nConvertToYV24(matrix="rec709")
 
 
@@ -37,13 +39,14 @@ def get_crf(string):
 
 def simple_coder(curret_file):
     out_name = path.splitext(curret_file)[0]  # .replace(' ', '_')
-    system('chcp 65001 && cls && ffmpeg -stats -hide_banner -loglevel 16 -y -i "{avs}" {crop_or_scale}\
+    system('chcp 65001 && cls && ffmpeg {verbosity} -y -i "{avs}" {scale} \
             -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
-            avs=path.join(d, avs_name),
+            avs=path.join(default_wdir, avs_name),
             out=out_name,
-            audio='-an' if (' no_audio' in out_name or ' -an' in out_name) else '-c:a aac -b:a 576k -cutoff 18000',
-            crop_or_scale=get_scale(out_name),
-            rate_factor=get_crf(out_name)
+            audio='-an' if (' no_audio' in out_name or ' -an' in out_name) else default_audio,
+            scale=get_scale(out_name),
+            rate_factor=get_crf(out_name),
+            verbosity=default_verbosity
         )
     )
 
@@ -54,14 +57,14 @@ def error_output(e):
 
 
 def main():
-    curret_file = get_file(d)
+    curret_file = get_file(default_wdir)
     result = False
     if curret_file:
         write_avs(curret_file)
         simple_coder(curret_file)
         result = True
         try:
-            remove(path.join(d, avs_name))
+            remove(path.join(default_wdir, avs_name))
         except:
             pass
     return result
