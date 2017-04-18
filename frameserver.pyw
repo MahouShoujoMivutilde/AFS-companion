@@ -1,3 +1,5 @@
+#! python3
+
 from os import listdir, path, remove, system
 from time import sleep
 import re
