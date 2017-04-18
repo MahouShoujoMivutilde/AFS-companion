@@ -25,14 +25,25 @@ def get_scale(string):
         return ''
 
 
+def get_crf(string):
+    try:
+        crf = int(re.search('-crf \d+', string)[0][5:])
+        if crf in range(52):
+            return crf
+        else:
+            raise 'actually not in [0-51] range'
+    except:
+        return 18
+
 def simple_coder(curret_file):
     out_name = path.splitext(curret_file)[0]  # .replace(' ', '_')
     system('chcp 65001 && cls && ffmpeg -stats -hide_banner -loglevel 16 -y -i "{avs}" {crop_or_scale}\
-            -c:v libx264 -crf 18 -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
+            -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
             avs=path.join(d, avs_name),
             out=out_name,
             audio='-an' if (' no_audio' in out_name or ' -an' in out_name) else '-c:a aac -b:a 576k -cutoff 18000',
-            crop_or_scale=get_scale(out_name)
+            crop_or_scale=get_scale(out_name),
+            rate_factor=get_crf(out_name)
         )
     )
 
