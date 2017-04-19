@@ -4,6 +4,13 @@ from os import listdir, path, remove, system
 from time import sleep
 import re
 
+try:
+    from send2trash import send2trash
+except:
+    print('...не то что бы это очень нужно, но всё же было бы клево, если бы здесь был пакет send2trash ^__^\n\
+          pip install send2trash\n\
+          (иногда AFS не может удалить временный .avi файл, при этом он нигде не открыт и успешно удаляется руками)')
+
 default_wdir = r'C:\ENCODE'
 default_audio = '-c:a aac -b:a 576k -cutoff 18000'
 default_verbosity = '-stats -hide_banner -loglevel 16' # только прогресс кодирования
@@ -58,6 +65,13 @@ def error_output(e):
     print(e)
 
 
+def rm_avi(fn):
+    try:
+        send2trash(fn)
+    except:
+        remove(fn)
+
+
 def main():
     curret_file = get_file(default_wdir)
     result = False
@@ -69,15 +83,16 @@ def main():
             remove(path.join(default_wdir, avs_name))
         except:
             pass
-    return result
+    return result, curret_file
 
 if __name__ == '__main__':
     while True:
         try:
-            encoded = main()
+            encoded, curfile = main()
             if encoded:
                 print('encoded, 15s timeout')
                 sleep(15)
+                rm_avi(curfile)
             else:
                 print('nothing found, 3s timeout')
                 sleep(3)
