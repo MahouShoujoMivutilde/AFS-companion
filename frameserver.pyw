@@ -8,7 +8,7 @@ default_wdir = r'C:\ENCODE'
 default_audio = '-c:a aac -b:a 576k -cutoff 18000'
 default_verbosity = '-stats -hide_banner -loglevel 16' # только прогресс кодирования
 avs_name = 'frameserver_tmp.avs'
-
+console_size = 'mode con: cols=100 lines=20 && '
 # TODO: более быстрые настройки для ffmpeg
 
 def get_file(folder):
@@ -41,7 +41,7 @@ def get_crf(string):
 
 def simple_coder(curret_file):
     out_name = path.splitext(curret_file)[0]  # .replace(' ', '_')
-    system('chcp 65001 && cls && ffmpeg {verbosity} -y -i "{avs}" {scale} \
+    system(console_size + 'chcp 65001 && cls && ffmpeg {verbosity} -y -i "{avs}" {scale} \
             -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
             avs=path.join(default_wdir, avs_name),
             out=out_name,
