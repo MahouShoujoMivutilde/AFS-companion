@@ -17,3 +17,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Last build directory... it is released anyway...
+build/
