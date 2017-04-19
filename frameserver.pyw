@@ -2,6 +2,7 @@
 
 from os import listdir, path, remove, system
 from time import sleep
+from sys import argv
 import re
 
 try:
@@ -21,11 +22,11 @@ console_size = 'mode con: cols=100 lines=20 && '
 def get_file(folder):
     for i in listdir(folder):
         if '.avi' in path.splitext(i):
-            return path.join(default_wdir, i)
+            return path.join(wdir, i)
 
 
 def write_avs(name):
-    with open(path.join(default_wdir, avs_name), 'w') as avs:  # , 'utf-8'.... но AviSynth всё равно не умеет :с
+    with open(path.join(wdir, avs_name), 'w') as avs:  # , 'utf-8'.... но AviSynth всё равно не умеет :с
         avs.write('AviSource("{}")'.format(name))  # \nConvertToYV24(matrix="rec709")
 
 
@@ -50,7 +51,7 @@ def simple_coder(curret_file):
     out_name = path.splitext(curret_file)[0]  # .replace(' ', '_')
     system(console_size + 'chcp 65001 && cls && ffmpeg {verbosity} -y -i "{avs}" {scale} \
             -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
-            avs=path.join(default_wdir, avs_name),
+            avs=path.join(wdir, avs_name),
             out=out_name,
             audio='-an' if (' no_audio' in out_name or ' -an' in out_name) else default_audio,
             scale=get_scale(out_name),
@@ -69,23 +70,39 @@ def rm_avi(fn):
     try:
         send2trash(fn)
     except:
-        remove(fn)
+        try:
+            remove(fn)
+        except:
+            pass
 
+def get_wdir():
+    if len(argv) > 1:
+        d = argv[1]
+        if path.isdir(d):
+            return d
+        else:
+            print('...?? директория не существует?')
+            return default_wdir
+    else:
+        return default_wdir
 
 def main():
-    curret_file = get_file(default_wdir)
+    curret_file = get_file(wdir)
     result = False
     if curret_file:
         write_avs(curret_file)
         simple_coder(curret_file)
         result = True
         try:
-            remove(path.join(default_wdir, avs_name))
+            remove(path.join(wdir, avs_name))
         except:
             pass
     return result, curret_file
 
+
 if __name__ == '__main__':
+    wdir = get_wdir()
+    print(wdir)
     while True:
         try:
             encoded, curfile = main()
