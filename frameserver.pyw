@@ -43,7 +43,7 @@ def get_crf(string):
         if crf in range(52):
             return crf
         else:
-            raise 'actually not in [0-51] range'
+            raise Exception('actually not in [0-51] range')
     except:
         return 18
 
