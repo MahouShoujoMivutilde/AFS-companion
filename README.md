@@ -49,7 +49,8 @@ __Параметры можно комбинировать__, разумеетс
 * __FFmpeg 3.2.4 win32 shared__
 
 ## Использует
-* [send2trash](https://github.com/hsoft/send2trash) (BSD 3-clause license) - опционально, при отсутствии будет юзаться `os.remove()`
+* [send2trash](https://github.com/hsoft/send2trash) ([license](https://github.com/hsoft/send2trash/blob/master/LICENSE)) - опционально, при отсутствии будет юзаться `os.remove()`
+* [cx_Freeze](https://github.com/anthony-tuininga/cx_Freeze) ([license](https://github.com/anthony-tuininga/cx_Freeze/blob/master/doc/license.rst)) - только для `setup.py`, очевидно
 
 ---
 _p.s._ Из-за AviSynth боится всяких кандзи и прочего юникода в названиях файлов. Увы.
