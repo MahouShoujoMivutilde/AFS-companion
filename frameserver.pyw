@@ -27,7 +27,7 @@ def get_file(folder):
 
 def write_avs(name):
     with open(path.join(wdir, avs_name), 'w') as avs:  # , 'utf-8'.... но AviSynth всё равно не умеет :с
-        avs.write('AviSource("{}")'.format(name))  # \nConvertToYV24(matrix="rec709")
+        avs.write('AviSource("{}")'.format(name))
 
 
 def get_scale(string):
@@ -48,7 +48,7 @@ def get_crf(string):
         return 18
 
 def simple_coder(curret_file):
-    out_name = path.splitext(curret_file)[0]  # .replace(' ', '_')
+    out_name = path.splitext(curret_file)[0]
     system(console_size + 'chcp 65001 && cls && ffmpeg {verbosity} -y -i "{avs}" {scale} \
             -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
             avs=path.join(wdir, avs_name),
@@ -62,7 +62,7 @@ def simple_coder(curret_file):
 
 
 def error_output(e = ''):
-    system('Pause>nul|(echo Тут когда-то было очень информативное сообщение об ошибке, но - увы... :c)')  # .replace('\n', '    ').replace('\r', '')
+    system('Pause>nul|(echo Тут когда-то было очень информативное сообщение об ошибке, но - увы... :c)')
     print(e)
 
 
