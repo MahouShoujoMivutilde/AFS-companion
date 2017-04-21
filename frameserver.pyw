@@ -1,6 +1,6 @@
 #! python3
 
-from os import listdir, path, remove, system
+from os import listdir, path, remove, system, mkdir
 from time import sleep
 from sys import argv
 import re
@@ -12,7 +12,7 @@ except:
           pip install send2trash\n\
           (иногда AFS не может удалить временный .avi файл, при этом он нигде не открыт и успешно удаляется руками)')
 
-default_wdir = r'C:\ENCODE'
+default_wdir = path.join(path.expanduser('~'), 'AFS_OUTPUT') # <=> %HOMEPATH%\AFS_OUTPUT\
 default_audio = '-c:a aac -b:a 576k -cutoff 18000'
 default_verbosity = '-stats -hide_banner -loglevel 16' # только прогресс кодирования
 avs_name = 'frameserver_tmp.avs'
@@ -61,7 +61,7 @@ def simple_coder(curret_file):
     )
 
 
-def error_output(e):
+def error_output(e = ''):
     system('Pause>nul|(echo Тут когда-то было очень информативное сообщение об ошибке, но - увы... :c)')  # .replace('\n', '    ').replace('\r', '')
     print(e)
 
@@ -75,6 +75,13 @@ def rm_avi(fn):
         except:
             pass
 
+
+def mk_wdir(fp):
+    if not path.isdir(fp):
+        mkdir(fp)
+    return fp
+
+
 def get_wdir():
     if len(argv) > 1:
         d = argv[1]
@@ -82,9 +89,9 @@ def get_wdir():
             return d
         else:
             print('...?? директория не существует?')
-            return default_wdir
+            return mk_wdir(default_wdir)
     else:
-        return default_wdir
+        return mk_wdir(default_wdir)
 
 def main():
     curret_file = get_file(wdir)

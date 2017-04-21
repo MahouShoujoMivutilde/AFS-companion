@@ -6,7 +6,7 @@ base = None
 if sys.platform == "win32":
     base = "Win32GUI"
 
-ver = "1.2"
+ver = "1.2.1"
 
 build_exe_options = {
     "build_exe":"build/v{}win64".format(ver),
