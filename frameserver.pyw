@@ -2,21 +2,26 @@
 
 from os import listdir, path, remove, system, mkdir
 from time import sleep
-from sys import argv
+from sys import argv, stdin
 import re
 
 try:
     from send2trash import send2trash
 except:
-    print('...не то что бы это очень нужно, но всё же было бы клево, если бы здесь был пакет send2trash ^__^\n\
-          pip install send2trash\n\
-          (иногда AFS не может удалить временный .avi файл, при этом он нигде не открыт и успешно удаляется руками)')
+    print('''...не то что бы это очень нужно, но всё же было бы клево, если бы здесь был пакет send2trash ^__^
+          pip install send2trash
+          (ибо иногда AFS не может удалить временный .avi файл, при этом он нигде не открыт и успешно удаляется руками...
+          ...поэтому, здесь есть костыль для разруливания таких ситуаций...
+          ....НО........
+          *драматичная пауза*
+          что если нужный тебе .avi файл СЛУЧАЙНО попадает в папку для подхвата файлов из AFS, и после удаляется через os.remove?
+          ....чтобы облегчить восстановление - и используется удаление через send2trash, название которого как бы намекает...)''')
 
 default_wdir = path.join(path.expanduser('~'), 'AFS_OUTPUT') # <=> %HOMEPATH%\AFS_OUTPUT\
 default_audio = '-c:a aac -b:a 576k -cutoff 18000'
 default_verbosity = '-stats -hide_banner -loglevel 16' # только прогресс кодирования
 avs_name = 'frameserver_tmp.avs'
-console_size = 'mode con: cols=100 lines=20 && '
+console_settings = 'mode con: cols=100 lines=20 && chcp 65001 && cls && '
 # TODO: более быстрые настройки для ffmpeg
 
 def get_file(folder):
@@ -49,26 +54,25 @@ def get_crf(string):
 
 def simple_coder(curret_file):
     out_name = path.splitext(curret_file)[0]
-    system(console_size + 'chcp 65001 && cls && ffmpeg {verbosity} -y -i "{avs}" {scale} \
-            -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
-            avs=path.join(wdir, avs_name),
-            out=out_name,
-            audio='-an' if (' no_audio' in out_name or ' -an' in out_name) else default_audio,
-            scale=get_scale(out_name),
-            rate_factor=get_crf(out_name),
-            verbosity=default_verbosity
+    system(console_settings + 'ffmpeg {verbosity} -y -i "{avs}" {scale} -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
+            avs = path.join(wdir, avs_name),
+            out = out_name,
+            audio = '-an' if ' -an' in out_name else default_audio,
+            scale = get_scale(out_name),
+            rate_factor = get_crf(out_name),
+            verbosity = default_verbosity
         )
     )
 
 
 def error_output(e = ''):
-    system('Pause>nul|(echo Тут когда-то было очень информативное сообщение об ошибке, но - увы... :c)')
+    system('Pause>nul|(echo Тут когда-то было очень информативное сообщение об ошибке, и если повезет - после нажатия enter, ты, человек, его увидишь... )')
     print(e)
 
 
 def rm_avi(fn):
     try:
-        send2trash(fn)
+        send2trash(fn) # чисто гипотетически - вдруг в папку вывода случайно попадает обычный .avi 
     except:
         try:
             remove(fn)
@@ -78,20 +82,37 @@ def rm_avi(fn):
 
 def mk_wdir(fp):
     if not path.isdir(fp):
-        mkdir(fp)
+        mkdirs(fp)
     return fp
 
 
 def get_wdir():
     if len(argv) > 1:
-        d = argv[1]
+        d = ' '.join(argv[1:])
         if path.isdir(d):
             return d
         else:
-            print('...?? директория не существует?')
+            print('...?? д-директория не существует?')
             return mk_wdir(default_wdir)
     else:
+        if stdin: # Если есть консоль <=> запуск не в фоне
+            while True:
+                wdir = input('Директория для подхвата .avi из AFS\n...или просто enter для использования пути по умолчанию:\n    {}\n>>> '.format(default_wdir))
+                if path.isdir(wdir):
+                    return wdir
+                elif wdir == '':
+                    break
+                else:
+                    print('...кажется, директория не существует...\nЕще раз!♥\n')
         return mk_wdir(default_wdir)
+
+
+def fmt_cf(string):
+    name = path.split(string)[1]
+    if len(name) > 39:
+        name = name[:18] + '...' + name[-18:]
+    return name
+
 
 def main():
     curret_file = get_file(wdir)
@@ -109,16 +130,15 @@ def main():
 
 if __name__ == '__main__':
     wdir = get_wdir()
-    print(wdir)
+    print('{} - принято♥\n\n'.format(wdir))
     while True:
         try:
             encoded, curfile = main()
             if encoded:
-                print('encoded, 15s timeout')
+                print('{} - закодированно последним♥ Быть может, даже успешно... 15s tm\n'.format(fmt_cf(curfile)))
                 sleep(15)
                 rm_avi(curfile)
             else:
-                print('nothing found, 3s timeout')
                 sleep(3)
         except Exception as e:
             error_output(e)
