@@ -1,6 +1,6 @@
 #! python3
 
-from os import listdir, path, remove, system, mkdir
+from os import listdir, path, remove, system, makedirs
 from time import sleep
 from sys import argv, stdin
 import re
@@ -82,7 +82,7 @@ def rm_avi(fn):
 
 def mk_wdir(fp):
     if not path.isdir(fp):
-        mkdirs(fp)
+        makedirs(fp)
     return fp
 
 
