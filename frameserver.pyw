@@ -54,7 +54,7 @@ def get_crf(string):
 
 def simple_coder(curret_file):
     out_name = path.splitext(curret_file)[0]
-    system(console_settings + 'ffmpeg {verbosity} -y -i "{avs}" {scale} -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p {audio} "{out} fs_x264.mp4"'.format(
+    system(console_settings + 'ffmpeg {verbosity} -y -i "{avs}" {scale} -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p -movflags faststart {audio} "{out} fs_x264.mp4"'.format(
             avs = path.join(wdir, avs_name),
             out = out_name,
             audio = '-an' if ' -an' in out_name else default_audio,
