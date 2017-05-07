@@ -3,7 +3,7 @@ from cx_Freeze import setup, Executable
 from os import path, remove
 from shutil import copyfile
 
-ver = "1.3.0"
+ver = "1.3.1"
 
 build_exe_options = {
     "build_exe":r"build\v{}x64".format(ver),
