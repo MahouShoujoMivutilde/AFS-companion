@@ -19,4 +19,8 @@ $RECYCLE.BIN/
 *.lnk
 
 # Last build directory... it is released anyway...
-build/
+build
+dist
+
+# Python stuff
+__*__
