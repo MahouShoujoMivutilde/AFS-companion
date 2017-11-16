@@ -1,0 +1,1 @@
+pyinstaller .\frameserver.spec --clean --log-level WARN
