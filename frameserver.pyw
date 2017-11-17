@@ -36,7 +36,7 @@ def write_avs(name):
         avs.write('AviSource("{}")'.format(name))
 
 
-def simple_coder(curret_file):
+def encode(curret_file):
     patterns = {
         'scale': 'scale=(\-)?\d+,(\-)?\d+', 
         'rate_factor': '-crf \d+', 
@@ -78,14 +78,14 @@ def simple_coder(curret_file):
     return system(cmd)
 
 
-def error_output(e = ''):
+def print_msg(e = ''):
     if stdin:
         print(e)
     else:
         system('Pause>nul|(echo "{}")'.format(e))
 
 
-def fmt_cf(string):
+def shorten_name(string):
     name = path.split(string)[1]
     if len(name) > 39:
         name = name[:18] + '...' + name[-18:]
@@ -96,11 +96,11 @@ def main(wdir):
     curret_file = get_file(wdir)
     if curret_file:
         write_avs(curret_file)
-        res = simple_coder(curret_file)
+        res = encode(curret_file)
         if res != 0:
             raise Exception('Что-то пошло не так при кодировании, удачи тебе выяснить, что\n\n ^__^\n\n\n...Например, у видео могло быть разрешение, неделимое на 2 по какой-то из сторон')
         
-        print('{} - закодированно последним♥ 15s tm\n'.format(fmt_cf(curret_file)))
+        print('{} - закодированно последним♥ 15s tm\n'.format(shorten_name(curret_file)))
 
         try:
             remove(path.join(wdir, avs_name))
@@ -127,5 +127,5 @@ if __name__ == '__main__':
             avs_name = avs_name.format(random())
             main(wd)
         except Exception as e:
-            error_output(e)
+            print_msg(e)
             sleep(10)
