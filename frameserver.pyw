@@ -9,14 +9,18 @@ import argparse
 
 default_wdir = path.join(path.expanduser('~'), 'AFS_OUTPUT') # <=> %HOMEPATH%\AFS_OUTPUT\
 default_audio = '-c:a aac -b:a 576k -cutoff 18000'
+default_rf = '-crf 18'
 default_verbosity = '-stats -hide_banner -loglevel 16' # только прогресс кодирования
 avs_name = 'frameserver_tmp_{}.avs'
-console_settings = 'mode con: cols=100 lines=20 && chcp 65001 && cls && ' if not stdin else ''
+console_settings = 'mode con: cols=100 lines=20 && ' if not stdin else ''
+
+console_settings += 'chcp 65001 && cls && '
+
 # TODO: более быстрые настройки для ffmpeg
 
 def get_args():
-    parser = argparse.ArgumentParser(description = "AFS-компаньон") 
-    parser.add_argument("--wdir", "-w", required = False, default = default_wdir, help = "Путь к папке, куда из AME/PP CC будут отправляться .avi файлы-прокси")
+    parser = argparse.ArgumentParser(description = 'AFS-компаньон') 
+    parser.add_argument('--wdir', '-w', required = False, default = default_wdir, help = 'Путь к папке, куда из AME/PP CC тобой будут отправляться .avi файлы-прокси, по умолчанию: {}'.format(default_wdir))
     return parser.parse_args()
 
 
@@ -33,32 +37,44 @@ def write_avs(name):
 
 
 def simple_coder(curret_file):
+    patterns = {
+        'scale': 'scale=(\-)?\d+,(\-)?\d+', 
+        'rate_factor': '-crf \d+', 
+        'no_audio': '\ -an'
+    }
+
     def get_scale(string):
         try:
-            return '-vf scale={sc[0]}:{sc[1]} -sws_flags lanczos'.format(sc=[int(_) for _ in re.search('scale=(\-)?\d+,(\-)?\d+', string)[0][6:].split(',')])
-        except:
+            return '-vf {} -sws_flags lanczos'.format(re.search(patterns['scale'], string).group().replace(',', ':'))
+        except Exception as e:
+            print('scale: {}'.format(e))
             return ''
 
     def get_crf(string):
         try:
-            crf = int(re.search('-crf \d+', string)[0][5:])
-            if crf in range(52):
-                return crf
-            else:
-                raise Exception('actually not in [0-51] range')
-        except:
-            return 18
+            rf = re.search(patterns['rate_factor'], string).group()
+            assert int(rf.split()[1]) in range(52)
+            return rf
+        except Exception as e:
+            print('crf: {}'.format(e))
+            return default_rf
+
+    def get_final_name(string):
+        for _, p in patterns.items():
+            string = re.sub(p, '', string)
+        return ' '.join(string.split())
 
     out_name = path.splitext(curret_file)[0]
-    cmd = console_settings + 'ffmpeg {verbosity} -y -i "{avs}" {scale} -c:v libx264 -crf {rate_factor} -pix_fmt yuv420p -movflags faststart {audio} "{out} fs_x264.mp4"'.format(
+ 
+    cmd = console_settings + 'ffmpeg {verbosity} -y -i "{avs}" {scale} -c:v libx264 {rate_factor} -pix_fmt yuv420p -movflags faststart {audio} "{out}.mp4"'.format(
         avs = path.join(path.split(curret_file)[0], avs_name),
-        out = out_name,
+        out = get_final_name(out_name),
         audio = '-an' if ' -an' in out_name else default_audio,
         scale = get_scale(out_name),
         rate_factor = get_crf(out_name),
         verbosity = default_verbosity
     )
-    
+
     return system(cmd)
 
 
@@ -66,7 +82,7 @@ def error_output(e = ''):
     if stdin:
         print(e)
     else:
-        system('Pause>nul|(echo Тут когда-то было очень информативное сообщение об ошибке, и если повезет - после нажатия enter, ты, человек, его увидишь... )')
+        system('Pause>nul|(echo "{}")'.format(e))
 
 
 def fmt_cf(string):
