@@ -47,7 +47,6 @@ def encode(curret_file):
         try:
             return '-vf {} -sws_flags lanczos'.format(re.search(patterns['scale'], string).group().replace(',', ':'))
         except Exception as e:
-            print('scale: {}'.format(e))
             return ''
 
     def get_crf(string):
@@ -56,7 +55,6 @@ def encode(curret_file):
             assert int(rf.split()[1]) in range(52)
             return rf
         except Exception as e:
-            print('crf: {}'.format(e))
             return default_rf
 
     def get_final_name(string):
