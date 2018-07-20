@@ -1,3 +1,8 @@
+# UPD 2018
+Лучше использовать [Voukoder](https://github.com/Vouk/voukoder/) - больше функций, удобнее управление, нет костыле-задержки, да и вообще - это не костыль-сопровождение, а нормальный плагин, причем в активной разработке.
+ 
+---
+
 # Скрипт-компаньон для [Advanced FrameServer](http://advancedfs.sourceforge.net/)
 Рассчитан на работу вместе __[AviSynth](http://avisynth.nl/index.php/Main_Page)__ и __[FFmpeg](http://ffmpeg.zeranoe.com/builds/)__ 32bit (из-за AviSynth только 32, увы), который, разумеется, должен быть добавлен в __PATH__, написан под __Python 3.3+__.
 
